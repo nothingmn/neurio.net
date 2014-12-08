@@ -28,8 +28,15 @@ namespace Neurio.Client.Tests
 
         public async Task<LoginResult> Login()
         {
-            return await DefaultClient.Login(System.Configuration.ConfigurationManager.AppSettings["Username"],
-                System.Configuration.ConfigurationManager.AppSettings["Password"]);
+            if (!DefaultClient.IsAuthenticated || DefaultClient.LastLoginResult == null)
+            {
+                return await DefaultClient.Login(System.Configuration.ConfigurationManager.AppSettings["Username"],
+                    System.Configuration.ConfigurationManager.AppSettings["Password"]);
+            }
+            else
+            {
+                return DefaultClient.LastLoginResult;
+            }
         }
     }
 }

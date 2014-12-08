@@ -14,6 +14,9 @@ namespace Neurio.Client
 {
     public class NeurioClient
     {
+        public CurrentUserResult User { get; private set; }
+        public LoginResult LastLoginResult { get; private set; }
+
         public static string AlphaSiteBaseUrl = "https://alpha.neur.io/v1";
         private readonly string _baseUrl;
 
@@ -24,8 +27,10 @@ namespace Neurio.Client
             if (_baseUrl.EndsWith("/")) _baseUrl = _baseUrl.Substring(0, _baseUrl.Length - 1);
         }
 
-        public async Task<AppliancesResult> Appliances(string locationId)
+        public async Task<AppliancesResult> LoadAppliances(string locationId)
         {
+            if (!IsAuthenticated) return null;
+
             var appliances = new AppliancesResult()
             {
                 StatusCode = -1,
@@ -38,6 +43,8 @@ namespace Neurio.Client
                 appliances.Appliances = list;
                 appliances.Success = true;
                 appliances.StatusCode = 200;
+                this.User.Appliances = list;
+
             }
             catch (Exception e)
             {
@@ -50,30 +57,51 @@ namespace Neurio.Client
         {
             return dt.ToString("yyyy-MM-ddTHH:mm:ssZ");
         }
-        public async Task<List<Event>> LocationEvents(string locationId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, int page = 1, int perPage = 100 )
+        public async Task<List<Event>> LoadLocationEvents(string locationId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, int page = 1, int perPage = 100 )
         {
             try
             {
+                if (!IsAuthenticated) return null;
+
                 if (startDateTime == DateTimeOffset.MinValue) startDateTime = DateTimeOffset.Now.AddDays(-7);
                 if (endDateTime == DateTimeOffset.MaxValue) endDateTime = DateTimeOffset.Now;
                 if (page < 1) page = 1;
                 if (perPage < 1) perPage = 10;
-                return await HttpClient.GetAsType<List<Event>>(FormatUrl("appliances/events", string.Format("locationId={0}&start={1}&end={2}&page={3}&perPage={4}", locationId, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime), page, perPage)));
+                var list = await HttpClient.GetAsType<List<Event>>(FormatUrl("appliances/events", string.Format("locationId={0}&start={1}&end={2}&page={3}&perPage={4}", locationId, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime), page, perPage)));
+
+
+                foreach (var l in User.Locations.Where(l => l.Id == locationId))
+                {
+                    l.Events = list;
+                }
+
+                return list;
+
             }
             catch (Exception)
             {
             }
             return null;
         }
-        public async Task<List<Stat>> LocationStats(string locationId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, int page = 1, int perPage = 100, string granularity = "days")
+        public async Task<List<Stat>> LoadLocationStats(string locationId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, int page = 1, int perPage = 100, string granularity = "days")
         {
             try
             {
+                if (!IsAuthenticated) return null;
+
                 if (startDateTime == DateTimeOffset.MinValue) startDateTime = DateTimeOffset.Now.AddDays(-7);
                 if (endDateTime == DateTimeOffset.MaxValue) endDateTime = DateTimeOffset.Now;
                 if (page < 1) page = 1;
                 if (perPage < 1) perPage = 10;
-                return await HttpClient.GetAsType<List<Stat>>(FormatUrl("appliances/stats", string.Format("locationId={0}&start={1}&end={2}&page={3}&perPage={4}&granularity={5}", locationId, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime), page, perPage, granularity)));
+                var list = await HttpClient.GetAsType<List<Stat>>(FormatUrl("appliances/stats", string.Format("locationId={0}&start={1}&end={2}&page={3}&perPage={4}&granularity={5}", locationId, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime), page, perPage, granularity)));
+
+                foreach (var l in User.Locations.Where(l => l.Id == locationId))
+                {
+                    l.Stats = list;
+                }
+
+                return list;
+
             }
             catch (Exception)
             {
@@ -81,12 +109,21 @@ namespace Neurio.Client
             return null;
         }
 
-        public async Task<List<Sample>> SensorLiveSamples(string sensorId, DateTimeOffset lastDateTime)
+        public async Task<List<Sample>> LoadSensorLiveSamples(string sensorId, DateTimeOffset lastDateTime)
         {
             try
             {
+                if (!IsAuthenticated) return null;
+
                 if (lastDateTime == DateTimeOffset.MinValue) lastDateTime = DateTimeOffset.Now;
-                return await HttpClient.GetAsType<List<Sample>>(FormatUrl("samples/live", string.Format("sensorId={0}&last=", sensorId, FormatDateTimeOffset(lastDateTime.UtcDateTime))));
+                var list = await HttpClient.GetAsType<List<Sample>>(FormatUrl("samples/live", string.Format("sensorId={0}&last={1}", sensorId, FormatDateTimeOffset(lastDateTime.UtcDateTime))));
+
+                foreach (var s in from l in this.User.Locations from s in l.Sensors where s.Id == sensorId select s)
+                {
+                    s.LiveSamples = list;
+                }
+
+                return list;
             }
             catch (Exception)
             {
@@ -95,14 +132,23 @@ namespace Neurio.Client
         }
 
 
-        public async Task<List<Sample>> SensorStatsSamples(string sensorId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string granularity = "days")
+        public async Task<List<Sample>> LoadSensorStatsSamples(string sensorId, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string granularity = "days")
         {
             try
             {
+                if (!IsAuthenticated) return null;
+
                 if (string.IsNullOrEmpty(granularity)) granularity = "days";
                 if (startDateTime == DateTimeOffset.MinValue) startDateTime = DateTimeOffset.Now.AddDays(-7);
                 if (endDateTime == DateTimeOffset.MaxValue) endDateTime = DateTimeOffset.Now;
-                return await HttpClient.GetAsType<List<Sample>>(FormatUrl("samples/stats", string.Format("sensorId={0}&granularity={1}&start={2}&end={3}", sensorId, granularity, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime))));
+                var list = await HttpClient.GetAsType<List<Sample>>(FormatUrl("samples/stats", string.Format("sensorId={0}&granularity={1}&start={2}&end={3}", sensorId, granularity, FormatDateTimeOffset(startDateTime.UtcDateTime), FormatDateTimeOffset(endDateTime.UtcDateTime))));
+
+                foreach (var s in from l in this.User.Locations from s in l.Sensors where s.Id == sensorId select s)
+                {
+                    s.Samples = list;
+                }
+
+                return list;
             }
             catch (Exception)
             {
@@ -110,8 +156,11 @@ namespace Neurio.Client
             return null;
         }
 
-        public async Task<CurrentUserResult> CurrentUser()
+        public bool IsAuthenticated { get; private set; }
+        public async Task<CurrentUserResult> LoadCurrentUser()
         {
+            if (!IsAuthenticated) return null;
+
             CurrentUserResult user = null;
             try
             {
@@ -127,9 +176,17 @@ namespace Neurio.Client
                 };
                 
             }
+            this.User = user;
             return user;
         }
 
+
+        public async Task<bool> Logout()
+        {
+            if (!IsAuthenticated) return false;
+            _client = null;
+            return true;
+        }
         public async Task<LoginResult> Login(string username, string password)
         {
             _client = null;
@@ -142,6 +199,7 @@ namespace Neurio.Client
                         HttpClient.PostAsType<LoginResult>(FormatUrl("oauth2/token"),
                             string.Format("grant_type=password&username={0}&password={1}", Uri.EscapeUriString(username), Uri.EscapeUriString(password)),
                             "application/x-www-form-urlencoded");
+                IsAuthenticated = loginResult.Success;
                 if (loginResult.Success)
                 {
                     if (!string.IsNullOrEmpty(loginResult.Access_token) && loginResult.Success)
@@ -160,16 +218,9 @@ namespace Neurio.Client
                   
                 };
             }
+            LastLoginResult = loginResult;
 
             return loginResult;
-        }
-        private async Task<T> GetResourceAsType<T>(string resource, string queryString = null)
-        {
-            
-            Debug.WriteLine("GetResourceAsType {0}, {1}", resource, queryString);
-            var result = await HttpClient.GetAsType<T>(FormatUrl(resource, queryString));
-            Debug.WriteLine("GetResourceAsType {0}, {1} returned", resource, queryString);
-            return result;
         }
 
         private string ContentType = "application/json";

@@ -15,6 +15,8 @@ namespace Neurio.Client.Entities.Results
         public string Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<Location> Locations { get; set; }
+
+        public List<Appliance> Appliances { get; set; }
     }
 
 

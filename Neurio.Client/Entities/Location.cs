@@ -14,5 +14,7 @@ namespace Neurio.Client.Entities
         public List<Sensor> Sensors { get; set; }
         public DateTime CreatedAt { get; set; }
         public string Id { get; set; }
+        public List<Stat> Stats { get; set; }
+        public List<Event> Events { get; set; }
     }
 }

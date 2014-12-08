@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,18 @@ namespace Neurio.Client.Extensions
         private static async Task<T> ConvertToType<T>(HttpResponseMessage message)
         {
             var resultContent = await message.Content.ReadAsStringAsync();
+
+#if DEBUG
+            Debug.WriteLine("Uri:{0}", message.RequestMessage.RequestUri);
+            Debug.WriteLine("Server:{0}", message.Headers.Server);
+            Debug.WriteLine("Method:{0}", message.RequestMessage.Method);
+            Debug.WriteLine("Status Code:{0}", message.StatusCode);
+            Debug.WriteLine("Success:{0}", message.IsSuccessStatusCode);
+            Debug.WriteLine("Reason:{0}", message.ReasonPhrase);
+            Debug.WriteLine("Content:{0}", resultContent);
+#endif
+
+
             T typeResult = default(T);
             if (message.IsSuccessStatusCode)
             {

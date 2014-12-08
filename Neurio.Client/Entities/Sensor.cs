@@ -17,6 +17,8 @@ namespace Neurio.Client.Entities
         public DateTime CreatedAt { get; set; }
         public string Id { get; set; }
         public List<Sample> Samples { get; set; }
+        public List<Sample> LiveSamples { get; set; }
+        public List<Event> Events { get; set; }
 
     }
 }

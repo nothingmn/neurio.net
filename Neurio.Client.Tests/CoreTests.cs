@@ -29,7 +29,7 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     Assert.IsNotNull(u.Result.Email, u.Result.Message);
@@ -44,12 +44,12 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     foreach (var l in u.Result.Locations)
                     {
-                        DefaultClient.Appliances(l.Id).ContinueWith(v =>
+                        DefaultClient.LoadAppliances(l.Id).ContinueWith(v =>
                         {
                             Assert.IsTrue(v.Result.Success, v.Result.Message);
                             Assert.IsNotNull(v.Result.Appliances, v.Result.Message);
@@ -67,14 +67,14 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     foreach (var l in u.Result.Locations)
                     {
                         foreach (var s in l.Sensors)
                         {
-                            DefaultClient.SensorStatsSamples(s.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
+                            DefaultClient.LoadSensorStatsSamples(s.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
                             {
                                 Assert.IsNotNull(ss.Result);
                             }).Wait();
@@ -91,14 +91,14 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     foreach (var l in u.Result.Locations)
                     {
                         foreach (var s in l.Sensors)
                         {
-                            DefaultClient.SensorLiveSamples(s.Id, DateTimeOffset.MinValue).ContinueWith(ss =>
+                            DefaultClient.LoadSensorLiveSamples(s.Id, DateTimeOffset.MinValue).ContinueWith(ss =>
                             {
                                 Assert.IsNotNull(ss.Result);
                             }).Wait();
@@ -114,12 +114,12 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     foreach (var l in u.Result.Locations)
                     {
-                        DefaultClient.LocationEvents(l.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
+                        DefaultClient.LoadLocationEvents(l.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
                         {
                             Assert.IsNotNull(ss.Result);
                         }).Wait();
@@ -135,12 +135,12 @@ namespace Neurio.Client.Tests
             base.Login().ContinueWith(t =>
             {
                 Assert.IsTrue(t.Result.Success, t.Result.Message);
-                DefaultClient.CurrentUser().ContinueWith(u =>
+                DefaultClient.LoadCurrentUser().ContinueWith(u =>
                 {
                     Assert.IsTrue(u.Result.Success, u.Result.Message);
                     foreach (var l in u.Result.Locations)
                     {
-                        DefaultClient.LocationStats(l.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
+                        DefaultClient.LoadLocationStats(l.Id, DateTimeOffset.MinValue, DateTimeOffset.MaxValue).ContinueWith(ss =>
                         {
                             Assert.IsNotNull(ss.Result);
                         }).Wait();
