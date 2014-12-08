@@ -58,7 +58,7 @@ namespace Neurio.Views
             statusLabel.SetBinding(Label.TextProperty, "StatusText");
 
 
-            
+
             var padding = 5;
             var loginLayout = new RelativeLayout()
             {
@@ -97,7 +97,8 @@ namespace Neurio.Views
                         statusLabel, Constraint.RelativeToParent((parent) => 0),
                         Constraint.RelativeToParent(
                             (parent) =>
-                                loginTitle.Height + padding + emailInput.Height + padding + passwordInput.Height + padding + loginButton.Height + padding + padding)
+                                loginTitle.Height + padding + emailInput.Height + padding + passwordInput.Height +
+                                padding + loginButton.Height + padding + padding)
                     },
                 }
             };
@@ -108,8 +109,15 @@ namespace Neurio.Views
 
         private RelativeLayout LoadAppliancesLayout()
         {
+            var padding = 5;
             var appliancesTitle = new Label();
             appliancesTitle.SetBinding(Label.TextProperty, "AppliancesTitle");
+            var CurrentWattageLabel = new Label()
+            {
+                Font = Font.SystemFontOfSize(NamedSize.Large)
+            };
+            CurrentWattageLabel.SetBinding(Label.TextProperty, "CurrentWattage");
+
 
             var list = new ListView()
             {
@@ -117,14 +125,14 @@ namespace Neurio.Views
                 VerticalOptions = LayoutOptions.StartAndExpand,
                 ItemTemplate = new DataTemplate(() =>
                 {
-                    Label nameLabel = new Label();
+                    var nameLabel = new Label();
                     nameLabel.SetBinding(Label.TextProperty, "Label");
 
                     return new ViewCell()
                     {
                         View = new StackLayout()
                         {
-                            Padding = new Thickness(0, 5),
+                            Padding = new Thickness(0, padding),
                             Orientation = StackOrientation.Vertical,
                             HorizontalOptions = LayoutOptions.StartAndExpand,
                             VerticalOptions = LayoutOptions.Center,
@@ -138,7 +146,6 @@ namespace Neurio.Views
             };
             list.SetBinding(ListView.ItemsSourceProperty, "Appliances");
             //list.SetBinding(ListView.SelectedItemProperty, "ApplianceSelected");
-            var padding = 5;
 
             var appliancesLayout = new RelativeLayout()
             {
@@ -146,8 +153,20 @@ namespace Neurio.Views
                 VerticalOptions = LayoutOptions.StartAndExpand,
                 Children =
                 {
-                    {appliancesTitle, Constraint.RelativeToParent((parent) => 0)},
-                    {list, Constraint.RelativeToParent((parent) => 0), Constraint.RelativeToParent((parent) => appliancesTitle.Height + padding )}
+                    {
+                        appliancesTitle,
+                        Constraint.RelativeToParent((parent) => 0)
+                    },
+                    {
+                        CurrentWattageLabel,
+                        Constraint.RelativeToParent((parent) => parent.Width/2),
+                        Constraint.RelativeToParent((parent) => appliancesTitle.Height + padding)
+                    },
+                    {
+                        list,
+                        Constraint.RelativeToParent((parent) => 0),
+                        Constraint.RelativeToParent((parent) => appliancesTitle.Height + padding + CurrentWattageLabel.Height + padding)
+                    }
                 }
             };
             appliancesLayout.SetBinding(RelativeLayout.IsVisibleProperty, "ApplicancesTabVisible");

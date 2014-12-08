@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Neurio.Client;
 using Neurio.Client.Entities;
@@ -40,7 +41,33 @@ namespace Neurio.ViewModels
             EmailLabelText = "Email Address:";
             PasswordLabelText = "Password:";
             LoginButtonText = "Sign In";
+            UpdateWattage();
+        }
 
+        private void UpdateWattage()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    if (base.Client != null && base.Client.User != null && base.Client.IsAuthenticated)
+                    {
+                        var stats = base.Client.LoadSensorLiveSamples(base.Client.User.Locations[0].Sensors[0].Id,
+                            DateTimeOffset.Now.AddHours(-1)).Result;
+                        if (stats != null && stats.Count > 0)
+                        {
+                            CurrentWattage = string.Format("{0} watts", stats[0].ConsumptionPower);
+                        }
+                        Task.Delay(1000);
+                    }
+                    else
+                    {
+                        Task.Delay(2500);
+                    }
+
+                }
+
+            }, TaskCreationOptions.LongRunning);
         }
 
         private ICommand loginCommand;
@@ -71,7 +98,6 @@ namespace Neurio.ViewModels
             }
             ApplicancesTabVisible = result.Success;
             LoginVisible = !result.Success;
-            OnPropertyChanged("Appliances");
         }
 
         private string _statusText;
@@ -174,21 +200,26 @@ namespace Neurio.ViewModels
         }
 
 
+
+        List<Appliance> _appliances = new List<Appliance>();
+        private string _currentWattage;
+
         public List<Appliance> Appliances
         {
-            get
+            get { return _appliances; }
+            set
             {
-                if (base.Client.IsAuthenticated && base.Client.User != null)
-                {
-                    return base.Client.User.Appliances;
-                }
-                else
-                {
-                    return null;
-                }
+                _appliances = value;
+                OnPropertyChanged();
             }
+            
         }
 
 
+        public string CurrentWattage
+        {
+            get { return _currentWattage; }
+            set { _currentWattage = value; OnPropertyChanged(); }
+        }
     }
 }

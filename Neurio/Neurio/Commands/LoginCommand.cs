@@ -31,9 +31,22 @@ namespace Neurio.Commands
                 vm.StatusText = string.Format("Welcome {0}, downloading your appliances...", user.Name);
                 foreach (var l in user.Locations)
                 {
-                    var appliances = await _neurioClient.LoadAppliances(l.Id);
+                    var list = ((await _neurioClient.LoadAppliances(l.Id)) as AppliancesResult).Appliances;
+                    if (list != null && list.Count > 0)
+                    {
+                        vm.Appliances = list;
+                        foreach (var s in l.Sensors)
+                        {
+                            var stats = await _neurioClient.LoadSensorLiveSamples(s.Id, DateTimeOffset.Now.AddHours(-1));
+                            if (stats != null && stats.Count > 0)
+                            {
+                                vm.CurrentWattage = string.Format("{0} watts", stats[0].ConsumptionPower);
+                            }
+                        }
+                    }
                 }
                 vm.StatusText = "All done";
+                
                 OnLoginComplete(_neurioClient, loginResult);
                 
             }
