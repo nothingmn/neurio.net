@@ -199,7 +199,9 @@ namespace Neurio.Client
                         HttpClient.PostAsType<LoginResult>(FormatUrl("oauth2/token"),
                             string.Format("grant_type=password&username={0}&password={1}", Uri.EscapeUriString(username), Uri.EscapeUriString(password)),
                             "application/x-www-form-urlencoded");
+
                 IsAuthenticated = loginResult.Success;
+                
                 if (loginResult.Success)
                 {
                     if (!string.IsNullOrEmpty(loginResult.Access_token) && loginResult.Success)

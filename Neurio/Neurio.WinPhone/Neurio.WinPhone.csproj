@@ -169,6 +169,12 @@
       <HintPath>..\..\packages\Xamarin.Forms.1.0.6186\lib\WP80\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Neurio.Client\Neurio.Client.csproj">
+      <Project>{0267315A-F2D4-426D-A1B2-D13E8153CF9F}</Project>
+      <Name>Neurio.Client</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\Neurio\Neurio.projitems" Label="Shared" Condition="Exists('..\Neurio\Neurio.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

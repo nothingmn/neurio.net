@@ -83,6 +83,12 @@
   <ItemGroup>
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Neurio.Client\Neurio.Client.csproj">
+      <Project>{0267315A-F2D4-426D-A1B2-D13E8153CF9F}</Project>
+      <Name>Neurio.Client</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\Neurio\Neurio.projitems" Label="Shared" Condition="Exists('..\Neurio\Neurio.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Forms.1.0.6186\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.1.0.6186\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets')" />

@@ -4,7 +4,7 @@ using System.Linq;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
-
+using Neurio.Client;
 using Xamarin.Forms;
 
 namespace Neurio.iOS
@@ -30,8 +30,9 @@ namespace Neurio.iOS
             Forms.Init();
 
             window = new UIWindow(UIScreen.MainScreen.Bounds);
+            var client = new NeurioClient();
 
-            window.RootViewController = App.GetMainPage().CreateViewController();
+            window.RootViewController = App.GetMainPage(client).CreateViewController();
 
             window.MakeKeyAndVisible();
 
